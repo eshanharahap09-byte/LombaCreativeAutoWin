@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EcoBin - Smart Waste Monitoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef6f3;--glass:rgba(255,255,255,.7);--text:#0b2b2a;--mute:#52706c;--line:rgba(11,43,42,.1);--ok:#14b8a0;--ok-ink:#0a7f6e;--full:#f4503f;--ink:#0b2b2a;--ink-t:#eef6f3;--sun:#ffc145;
+--display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;--body:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07181a;--glass:rgba(255,255,255,.06);--text:#e6f4f1;--mute:#8fb1ab;--line:rgba(255,255,255,.1);--ok:#3ddbc0;--ok-ink:#3ddbc0;--full:#ff6b5b;--ink:#e6f4f1;--ink-t:#07181a}}
+:root[data-theme="dark"]{--bg:#07181a;--glass:rgba(255,255,255,.06);--text:#e6f4f1;--mute:#8fb1ab;--line:rgba(255,255,255,.1);--ok:#3ddbc0;--ok-ink:#3ddbc0;--full:#ff6b5b;--ink:#e6f4f1;--ink-t:#07181a}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;transition:background .5s}
+:focus-visible{outline:2px solid var(--ok);outline-offset:3px}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg i{position:absolute;border-radius:50%;filter:blur(90px);transition:opacity 1.2s}
+.b1{width:46vmax;height:46vmax;left:-12vmax;top:-14vmax;background:var(--ok);opacity:.28;animation:drift 22s ease-in-out infinite alternate}
+.b2{width:40vmax;height:40vmax;right:-14vmax;top:20vmax;background:var(--full);opacity:0;animation:drift 26s ease-in-out infinite alternate-reverse}
+.b3{width:30vmax;height:30vmax;left:30vmax;bottom:-16vmax;background:var(--sun);opacity:.16;animation:drift 30s ease-in-out infinite alternate}
+body[data-alert="1"] .b2{opacity:.3}body[data-alert="1"] .b1{opacity:.12}
+@keyframes drift{to{transform:translate(7vmax,5vmax) scale(1.15)}}
+header{position:sticky;top:0;z-index:5;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 60%,transparent);border-bottom:1px solid var(--line)}
+.hin{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:10px}
+.logo{width:36px;height:36px;border-radius:12px;background:var(--ink);color:var(--ink-t);display:grid;place-items:center;font-size:18px;transition:transform .5s}
+.logo:hover{transform:rotate(360deg)}
+.brand{font-family:var(--display);font-weight:800;font-size:1.08rem;letter-spacing:-.02em}
+.sp{flex:1}
+.conn{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--mute);background:var(--glass);border:1px solid var(--line);padding:6px 12px;border-radius:99px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+.dot.live{background:var(--ok);animation:ping 2s infinite}.dot.err{background:var(--full)}
+@keyframes ping{0%{box-shadow:0 0 0 0 var(--ok)}70%,100%{box-shadow:0 0 0 8px transparent}}
+.ib{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:var(--text);cursor:pointer;font-size:15px;transition:transform .2s,background .2s}
+.ib:hover{transform:translateY(-2px)}.ib:active{transform:scale(.92)}.ib.off{opacity:.45}
+main{max-width:1100px;margin:0 auto;padding:44px 20px 64px}
+.clock{font-size:.85rem;font-weight:600;color:var(--ok-ink);margin-bottom:10px;letter-spacing:.01em}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,7vw,4.2rem);line-height:1;letter-spacing:-.04em;margin:0 0 12px;max-width:14ch;transition:color .6s}
+body[data-alert="1"] .hero h1{color:var(--full)}
+.hero h1.swap{animation:swap .6s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes swap{from{opacity:0;translate:0 18px;filter:blur(6px)}}
+.hero p{color:var(--mute);margin:0 0 26px;max-width:52ch;min-height:1.5em}
+.wa{display:inline-block;text-decoration:none;margin:-10px 0 26px;background:#25d366;color:#06301a;border-color:transparent;animation:pop .5s cubic-bezier(.3,1.5,.5,1)}
+.cap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.strip{display:flex;gap:6px;flex:1;min-width:240px;max-width:460px}
+.sg{flex:1;height:14px;border:0;border-radius:99px;background:color-mix(in srgb,var(--ok) 55%,transparent);cursor:pointer;transition:background .5s,transform .25s,flex .4s}
+.sg:hover{transform:scaleY(1.6)}
+.sg.full{background:var(--full);flex:1.6}
+.capt{font-family:var(--display);font-weight:600;font-size:1.05rem}
+.capt b{font-weight:800}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:520px;margin-bottom:34px}
+.tile{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:12px 16px;transition:transform .25s}
+.tile:hover{transform:translateY(-3px)}
+.tile span{display:block;color:var(--mute);font-size:.72rem}
+.tile b{font-family:var(--display);font-size:1.45rem;letter-spacing:-.02em}
+.tools{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.seg{position:relative;display:inline-flex;background:var(--glass);border:1px solid var(--line);padding:4px;border-radius:14px}
+.seg button{position:relative;z-index:1;border:0;background:transparent;color:var(--mute);font:inherit;font-weight:600;font-size:.84rem;padding:7px 15px;border-radius:10px;cursor:pointer;transition:color .3s}
+.seg button.on{color:var(--ink-t)}
+.thumb{position:absolute;top:4px;bottom:4px;left:4px;border-radius:10px;background:var(--ink);transition:left .35s cubic-bezier(.3,1.3,.5,1),width .35s}
+.tbtn{font:inherit;font-weight:600;font-size:.84rem;border:1px solid var(--line);background:var(--glass);color:var(--text);padding:8px 15px;border-radius:14px;cursor:pointer;transition:transform .2s}
+.tbtn:hover{transform:translateY(-2px)}.tbtn:active{transform:scale(.95)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;perspective:1000px}
+.card{position:relative;background:var(--glass);border:1px solid var(--line);border-radius:26px;padding:20px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+transform:rotateX(var(--ry,0deg)) rotateY(var(--rx,0deg));transition:transform .25s ease-out,border-color .5s;animation:rise .8s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:calc(var(--i)*80ms)}
+@keyframes rise{from{opacity:0;translate:0 30px;scale:.96}}
+.card>*{position:relative;z-index:1}
+.card::before{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,0),color-mix(in srgb,var(--ok) 26%,transparent),transparent 70%)}
+.card.full::before{background:radial-gradient(260px circle at var(--mx,50%) var(--my,0),color-mix(in srgb,var(--full) 30%,transparent),transparent 70%)}
+.card:hover::before{opacity:1}
+.card.full{border-color:color-mix(in srgb,var(--full) 55%,var(--line));animation:glow 2.6s ease-in-out infinite}
+.card.urgent{animation:glow 1.1s ease-in-out infinite}
+.card.urgent .pill.f{background:var(--full);color:#fff}
+@keyframes glow{50%{box-shadow:0 0 34px -4px color-mix(in srgb,var(--full) 45%,transparent)}}
+.ct{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.nm{font-family:var(--display);font-weight:600;font-size:1.05rem;letter-spacing:-.01em}
+.ico{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:10px;background:color-mix(in srgb,var(--ok) 15%,transparent);margin-right:8px;font-size:1rem;vertical-align:middle;transition:background .6s}
+.card.full .ico{background:color-mix(in srgb,var(--full) 18%,transparent)}
+.lc{color:var(--mute);font-size:.8rem;margin:0}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:99px;white-space:nowrap;transition:all .5s}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.o{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok-ink)}
+.pill.f{background:color-mix(in srgb,var(--full) 16%,transparent);color:var(--full)}
+.pill.f i{animation:blink 1s infinite}@keyframes blink{50%{opacity:.2}}
+.art{display:grid;place-items:center;height:140px;margin:6px 0}
+.bn{width:96px;height:115px;overflow:visible;color:var(--ok);transition:color .8s}
+.full .bn{color:var(--full)}
+.lvl{transform:translateY(80px);transition:transform 1.6s cubic-bezier(.3,1.35,.5,1)}
+.full .lvl{transform:translateY(40px)}
+.wave{animation:flow 2.8s linear infinite}.full .wave{animation-duration:1.3s}
+@keyframes flow{from{transform:translateX(-40px)}to{transform:translateX(0)}}
+.lid{transform-origin:12px 26px;transition:transform .7s cubic-bezier(.3,1.7,.5,1)}
+.full .lid{transform:rotate(-18deg) translate(-3px,-6px)}
+.full .bn{animation:shake 3s infinite}
+@keyframes shake{0%,86%,100%{rotate:0deg}89%{rotate:-4deg}92%{rotate:4deg}95%{rotate:-2deg}}
+.cf{display:flex;justify-content:space-between;gap:8px;color:var(--mute);font-size:.78rem;border-top:1px solid var(--line);padding-top:12px}
+.cf .st{color:var(--text);font-weight:600}
+.empty{padding:44px 0;text-align:center;color:var(--mute)}
+.duo{display:grid;grid-template-columns:1fr;gap:16px;margin-top:40px}
+.fact{position:relative;overflow:hidden;display:flex;gap:18px;align-items:center;background:linear-gradient(135deg,color-mix(in srgb,var(--ok) 22%,var(--glass)),var(--glass));border:1px solid var(--line);border-radius:24px;padding:24px}
+.fact small{color:var(--ok-ink);font-weight:600;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}
+.fact p{margin:6px 0 14px;font-family:var(--display);font-weight:600;font-size:1.12rem;line-height:1.3;letter-spacing:-.01em;min-height:4.2em;transition:opacity .35s,translate .35s}
+.fact p.out{opacity:0;translate:0 8px}
+.fe{font-size:3.4rem;animation:bob 3.2s ease-in-out infinite;flex:none}
+@keyframes bob{50%{translate:0 -10px;rotate:6deg}}
+.fbar{position:absolute;left:0;bottom:0;height:3px;background:var(--ok);width:100%;transform-origin:left}
+.fbar.run{animation:bar 9s linear forwards}
+.chart{position:relative;display:grid;grid-template-columns:repeat(24,1fr);gap:4px;background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:18px 16px 12px;height:170px}
+.cc{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;min-width:0}
+.cc i{width:100%;max-width:18px;border-radius:6px 6px 3px 3px;background:var(--ok);min-height:4px;opacity:.9;transform-origin:bottom;animation:grow .8s cubic-bezier(.2,.9,.3,1.2) backwards;animation-delay:calc(var(--k)*25ms);transition:height .6s cubic-bezier(.3,1.4,.5,1)}
+.cc i.z{opacity:.18}.cc i.now{outline:2px solid var(--sun);outline-offset:2px}
+.cc small{font-size:.62rem;color:var(--mute);height:12px}
+@keyframes grow{from{transform:scaleY(0)}}
+.cn{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);font-size:.85rem;pointer-events:none}
+h2{font-family:var(--display);font-weight:800;font-size:1.3rem;letter-spacing:-.02em;margin:46px 0 12px}
+.h2r{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.feed{background:var(--glass);border:1px solid var(--line);border-radius:22px;max-height:280px;overflow:auto;backdrop-filter:blur(10px)}
+.evn{display:flex;gap:12px;padding:13px 20px;border-bottom:1px solid var(--line);font-size:.88rem;animation:slide .5s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes slide{from{opacity:0;translate:-14px 0}}
+.evn:last-child{border:0}.evn .d{width:9px;height:9px;border-radius:50%;margin-top:7px;flex:none}
+.evn small{display:block;color:var(--mute)}
+.none{padding:26px;text-align:center;color:var(--mute);font-size:.9rem}
+details{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:14px 20px;margin-top:16px}
+summary{cursor:pointer;font-weight:600;font-size:.92rem}
+details p{color:var(--mute);font-size:.88rem}
+pre{background:color-mix(in srgb,var(--bg) 60%,transparent);border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto;font-size:.8rem}
+#toasts{position:fixed;left:50%;translate:-50% 0;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:30;display:flex;flex-direction:column;gap:8px;width:min(92vw,420px)}
+.toast{position:relative;overflow:hidden;background:var(--ink);color:var(--ink-t);padding:14px 18px;border-radius:16px;font-weight:500;font-size:.9rem;box-shadow:0 14px 40px rgba(0,0,0,.3);animation:pop .55s cubic-bezier(.3,1.5,.5,1)}
+.toast::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--sun);transform-origin:left;animation:bar 5s linear forwards}
+@keyframes pop{from{opacity:0;translate:0 40px;scale:.9}}@keyframes bar{to{transform:scaleX(0)}}
+dialog{border:0;padding:0;background:transparent;color:var(--text);max-width:min(92vw,400px);width:100%}
+dialog::backdrop{background:rgba(5,20,20,.5);backdrop-filter:blur(6px)}
+dialog[open]{animation:dpop .45s cubic-bezier(.3,1.4,.5,1)}
+@keyframes dpop{from{opacity:0;scale:.88;translate:0 20px}}
+.dwrap{background:var(--bg);border:1px solid var(--line);border-radius:28px;padding:26px;text-align:center;position:relative}
+.dwrap .art{height:170px}.dwrap .bn{width:120px;height:144px}
+.dwrap h3{font-family:var(--display);font-size:1.5rem;letter-spacing:-.03em;margin:4px 0 0}
+.x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--glass);color:var(--text);cursor:pointer}
+.hist{text-align:left;margin-top:18px;border-top:1px solid var(--line);padding-top:12px;font-size:.84rem;color:var(--mute)}
+.hist div{padding:4px 0}
+.pt{position:absolute;bottom:-40px;opacity:0;animation:rise2 linear infinite}
+@keyframes rise2{10%{opacity:.35}90%{opacity:.25}to{opacity:0;transform:translateY(-115vh) rotate(300deg)}}
+.bst{position:absolute;left:50%;top:48%;z-index:3;font-size:1.3rem;pointer-events:none;animation:fly .9s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40px}
+@media(max-width:760px){.tiles{grid-template-columns:repeat(3,1fr)}.tile{padding:10px 12px}.tile b{font-size:1.15rem}}
+@media(max-width:600px){.conn span{display:none}.hin{padding:10px 14px}main{padding-top:30px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-alert="0">
+<div class="bg" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i></div>
+<header><div class="hin">
+  <div class="logo" aria-hidden="true">♻</div>
+  <div class="brand">EcoBin</div>
+  <div class="sp"></div>
+  <div class="conn"><i class="dot" id="dot"></i><span id="conn">Mode demo</span></div>
+  <button class="ib" id="btnTheme" title="Ganti tema" aria-label="Ganti tema">◐</button>
+  <button class="ib" id="btnSound" title="Suara" aria-label="Suara">🔔</button>
+  <button class="ib" id="btnNotif" title="Aktifkan notifikasi browser" aria-label="Aktifkan notifikasi">📲</button>
+</div></header>
+<div id="toasts" aria-live="polite"></div>
+
+<main>
+  <section class="hero">
+    <div class="clock" id="clock"></div>
+    <h1 id="hl">Semua tong masih muat</h1>
+    <p id="hs"></p>
+    <a class="tbtn wa" id="wa" hidden target="_blank" rel="noopener">💬 Kirim peringatan ke WhatsApp</a>
+    <div class="cap"><div class="strip" id="strip"></div><div class="capt"><b id="nFull">0</b> penuh dari <span id="nAll">0</span></div></div>
+    <div class="tiles">
+      <div class="tile"><span>Penuh hari ini</span><b id="tFull">0</b></div>
+      <div class="tile"><span>Mode data</span><b id="tMode">Demo</b></div>
+      <div class="tile"><span>Update terakhir</span><b id="tLast">-</b></div>
+    </div>
+  </section>
+
+  <div class="tools">
+    <div class="seg" id="seg"><i class="thumb" id="thumb"></i>
+      <button data-f="all" class="on">Semua</button><button data-f="full">Penuh</button><button data-f="ok">Belum penuh</button>
+    </div>
+    <button class="tbtn" id="btnTest">🧪 Tes peringatan</button>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="empty" class="empty" hidden>Tidak ada tempat sampah di kategori ini.</div>
+
+  <div class="duo">
+    <div class="fact" id="fact"><div class="fe" id="fe">♻️</div><div><small>Tahukah kamu?</small><p id="ft"></p><button class="tbtn" id="fn">Fakta lain →</button></div><i class="fbar" id="fbar"></i></div>
+  </div>
+
+  <h2>Tong penuh per jam (hari ini)</h2>
+  <div class="chart" id="chart"></div>
+
+  <div class="h2r"><h2>Aktivitas terbaru</h2><button class="tbtn" id="btnCsv">⬇ Ekspor CSV</button></div>
+  <div id="feed" class="feed"><div class="none">Belum ada aktivitas. Peringatan akan muncul di sini.</div></div>
+
+  <details>
+    <summary>Menghubungkan ke sensor ESP32</summary>
+    <p>Isi <code>DB_URL</code> di kode dengan URL Firebase Realtime Database. ESP32 mengirim <code>true</code> saat sensor mendeteksi sampah dan <code>false</code> saat tidak. Halaman ini membaca data itu tiap 3 detik.</p>
+<pre>updateBin(2, true);   // penuh
+updateBin(2, false);  // sudah dikosongkan</pre>
+  </details>
+</main>
+<footer>EcoBin - dibangun dengan ESP32 dan sensor ultrasonik. Pilah sampah, jaga bumi 🌍</footer>
+
+<dialog id="dlg"><div class="dwrap"><button class="x" id="dx" aria-label="Tutup">✕</button><div id="dbody"></div></div></dialog>
+
+<script>
+// ====== ISI URL FIREBASE ANDA DI SINI ======
+const DB_URL="https://NAMA-PROJECT-default-rtdb.firebaseio.com";
+// ============================================
+const bins=[
+ {id:1,icon:"🧴",name:"Tong Plastik",loc:"Botol dan kemasan plastik",full:false,t:null},
+ {id:2,icon:"🥫",name:"Tong Kaleng",loc:"Kaleng minuman dan makanan",full:false,t:null},
+ {id:3,icon:"📄",name:"Tong Kertas",loc:"Kertas dan kardus",full:false,t:null}
+];
+const $=id=>document.getElementById(id);
+const hm=d=>d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
+let sound=true,filter="all",cur=null,lastN=0,net=null;
+const events=[];
+const URGENT_MIN=10,KEY="binsense:v1";
+
+function art(u){return `<svg viewBox="0 0 80 96" class="bn" aria-hidden="true"><defs><clipPath id="c${u}"><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z"/></clipPath></defs><g clip-path="url(#c${u})"><g class="lvl"><g class="wave"><path d="M0 0q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0V90H0z" fill="currentColor" opacity=".85"/></g></g></g><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><g class="lid"><rect x="8" y="22" width="64" height="8" rx="4" fill="currentColor"/><rect x="30" y="14" width="20" height="8" rx="4" fill="currentColor" opacity=".7"/></g></svg>`}
+const pill=f=>`<span class="pill ${f?"f":"o"}"><i></i>${f?"Penuh":"Belum penuh"}</span>`;
+const fmtM=m=>m<60?m+" mnt":Math.floor(m/60)+" j "+(m%60)+" mnt";
+
+function build(){
+  $("grid").innerHTML=bins.map((b,i)=>`<article class="card" style="--i:${i}" data-id="${b.id}" tabindex="0" role="button" aria-label="Lihat detail ${b.name}">
+    <div class="ct"><div><div class="nm"><span class="ico">${b.icon}</span>${b.name}</div><p class="lc">${b.loc}</p></div><span class="pillbox"></span></div>
+    <div class="art">${art("g"+b.id)}</div>
+    <div class="cf"><span class="st"></span><span class="since"></span></div></article>`).join("");
+  $("strip").innerHTML=bins.map(b=>`<button class="sg" data-id="${b.id}" title="${b.name}" aria-label="${b.name}"></button>`).join("");
+  bins.forEach(b=>{b.el=document.querySelector('.card[data-id="'+b.id+'"]');b.sg=document.querySelector('.sg[data-id="'+b.id+'"]');paint(b)});
+  $("nAll").textContent=bins.length;
+}
+function durPaint(b){
+  const e=b.el,st=e.querySelector(".st");
+  if(!b.full){st.textContent="Masih muat";e.classList.remove("urgent");b.urg=false;return}
+  const m=b.t?Math.floor((Date.now()-b.t)/60000):0,u=m>=URGENT_MIN;
+  e.classList.toggle("urgent",u);
+  st.textContent=(u?"Mendesak! ":"")+"Penuh "+(m<1?"baru saja":fmtM(m));
+  const p=e.querySelector(".pill b");if(p)p.textContent=u?"Mendesak":"Penuh";
+  if(u&&!b.urg){b.urg=true;toast("⏰ "+b.name+" sudah penuh lebih dari "+URGENT_MIN+" menit");beep()}
+}
+function paint(b){
+  const e=b.el;e.classList.toggle("full",b.full);b.sg.classList.toggle("full",b.full);
+  e.querySelector(".pillbox").innerHTML=pill(b.full);
+  durPaint(b);
+  e.querySelector(".since").textContent=b.t?"Sejak "+hm(b.t):"Belum ada data";
+}
+function tween(el,to,from){const t0=performance.now();(function f(t){const p=Math.min(1,(t-t0)/600);el.textContent=Math.round(from+(to-from)*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0)}
+function summary(){
+  const fl=bins.filter(b=>b.full),n=fl.length,h=$("hl");
+  const txt=n?(n===1?"1 tong perlu dikosongkan":n+" tong perlu dikosongkan"):"Semua tong masih muat";
+  if(h.textContent!==txt){h.textContent=txt;h.classList.remove("swap");void h.offsetWidth;h.classList.add("swap")}
+  $("hs").textContent=n?fl.map(b=>b.name+" ("+b.loc+")").join(", "):"Sensor memantau "+bins.length+" tempat sampah secara langsung.";
+  tween($("nFull"),n,lastN);lastN=n;
+  document.body.dataset.alert=n?1:0;
+  document.title=(n?"("+n+") ":"")+"EcoBin - Smart Waste Monitoring";
+  $("tFull").textContent=events.filter(e=>e.full&&e.t.toDateString()===new Date().toDateString()).length;renderChart();wa(fl);
+  let shown=0;bins.forEach(b=>{const s=filter==="all"||(filter==="full")===b.full;b.el.hidden=!s;if(s)shown++});
+  $("empty").hidden=shown>0;
+}
+function feedRow(b,full,t){
+  const f=$("feed");if(f.firstElementChild&&f.firstElementChild.classList.contains("none"))f.innerHTML="";
+  const d=document.createElement("div");d.className="evn";
+  d.innerHTML='<i class="d" style="background:'+(full?"var(--full)":"var(--ok)")+'"></i><div><b>'+b.name+"</b> ("+b.loc+") "+(full?"sudah penuh":"sudah dikosongkan")+"<small>"+hm(t)+"</small></div>";
+  f.prepend(d);
+}
+function addLog(b,full){const t=new Date();events.unshift({id:b.id,full,t});feedRow(b,full,t)}
+function toast(t){const e=document.createElement("div");e.className="toast";e.textContent=t;$("toasts").appendChild(e);setTimeout(()=>e.remove(),5000)}
+function beep(){
+  if(!sound)return;
+  try{const a=new (window.AudioContext||window.webkitAudioContext)();
+  [0,.25].forEach(t=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.15,a.currentTime+t);o.start(a.currentTime+t);o.stop(a.currentTime+t+.18)})}catch(e){}
+}
+function burst(el,emo){
+  for(let i=0;i<9;i++){
+    const s=document.createElement("span");s.className="bst";s.textContent=i%3?emo:"✨";
+    const a=Math.PI*2*i/9,r=70+Math.random()*50;
+    s.style.cssText="--dx:"+Math.round(Math.cos(a)*r)+"px;--dy:"+Math.round(Math.sin(a)*r)+"px;--r:"+Math.round(Math.random()*240-120)+"deg";
+    el.appendChild(s);setTimeout(()=>s.remove(),1000);
+  }
+}
+
+// Titik masuk data dari sensor: detected = true jika sensor mendeteksi sampah
+function updateBin(id,detected){
+  const b=bins.find(x=>x.id===id);if(!b)return;
+  const was=b.full;b.full=!!detected;
+  if(was!==b.full||!b.t)b.t=new Date();
+  if(!was&&b.full){
+    addLog(b,true);burst(b.el,"⚠️");toast("🚨 "+b.name+" ("+b.loc+") penuh");beep();
+    try{if("Notification" in window&&Notification.permission==="granted")new Notification("Tempat sampah penuh",{body:b.name+" - "+b.loc})}catch(e){}
+  }else if(was&&!b.full){addLog(b,false);burst(b.el,"🌿");toast("✅ "+b.name+" sudah dikosongkan")}
+  paint(b);summary();$("tLast").textContent=hm(new Date());save();
+  if(cur===b.id&&$("dlg").open)fillDlg();
+}
+
+function openDlg(id){cur=id;fillDlg();$("dlg").showModal()}
+function fillDlg(){
+  const b=bins.find(x=>x.id===cur),d=$("dbody");
+  d.className=b.full?"full":"";
+  const h=events.filter(e=>e.id===b.id).slice(0,5);
+  d.innerHTML=`<div class="art">${art("d")}</div><h3>${b.name}</h3><p class="lc">${b.loc} - Sensor nomor ${b.id}</p><p>${pill(b.full)}</p>
+  <p class="lc">${b.t?(b.full?"Penuh sejak ":"Dikosongkan sejak ")+hm(b.t):"Belum ada data dari sensor"}</p>
+  <div class="hist"><b>Riwayat</b>${h.length?h.map(e=>"<div>"+hm(e.t)+" - "+(e.full?"Penuh":"Dikosongkan")+"</div>").join(""):"<div>Belum ada kejadian.</div>"}</div>`;
+}
+$("dx").onclick=()=>$("dlg").close();
+$("dlg").addEventListener("click",e=>{if(e.target===$("dlg"))$("dlg").close()});
+document.addEventListener("click",e=>{const t=e.target.closest(".card,.sg");if(t)openDlg(Number(t.dataset.id))});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("card"))openDlg(Number(e.target.dataset.id))});
+
+// Efek miring dan sorotan mengikuti kursor (hanya perangkat dengan mouse)
+let last=null;
+if(matchMedia("(hover:hover)").matches){
+  $("grid").addEventListener("pointermove",e=>{
+    const c=e.target.closest(".card");if(last&&last!==c){last.style.removeProperty("--rx");last.style.removeProperty("--ry")}
+    last=c;if(!c)return;const r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+    c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px");
+    c.style.setProperty("--rx",((x/r.width-.5)*7).toFixed(1)+"deg");c.style.setProperty("--ry",((.5-y/r.height)*7).toFixed(1)+"deg");
+  });
+  $("grid").addEventListener("pointerleave",()=>{if(last){last.style.removeProperty("--rx");last.style.removeProperty("--ry")}});
+}
+
+function moveThumb(){const on=$("seg").querySelector("button.on"),t=$("thumb");t.style.left=on.offsetLeft+"px";t.style.width=on.offsetWidth+"px"}
+$("seg").onclick=e=>{const f=e.target.dataset&&e.target.dataset.f;if(!f)return;filter=f;[...$("seg").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.f===f));moveThumb();summary()};
+$("btnTest").onclick=()=>{
+  const free=bins.filter(b=>!b.full);
+  if(!free.length){bins.forEach(b=>updateBin(b.id,false));return}
+  updateBin(free[Math.floor(Math.random()*free.length)].id,true);
+};
+$("btnSound").onclick=()=>{sound=!sound;$("btnSound").classList.toggle("off",!sound);$("btnSound").textContent=sound?"🔔":"🔕"};
+$("btnNotif").onclick=()=>{
+  if(!("Notification" in window)){toast("Browser ini tidak mendukung notifikasi.");return}
+  Notification.requestPermission().then(p=>toast(p==="granted"?"Notifikasi browser aktif.":"Notifikasi browser ditolak.")).catch(()=>{})
+};
+$("btnTheme").onclick=()=>{
+  const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+  r.dataset.theme=dark?"light":"dark";
+};
+
+// ===== Fakta, jam, riwayat tersimpan, grafik, WhatsApp, CSV =====
+const facts=[
+ {i:"🧴",t:"Sebuah botol plastik diperkirakan butuh sekitar 450 tahun untuk terurai di alam."},
+ {i:"🥫",t:"Mendaur ulang kaleng aluminium bisa menghemat hingga sekitar 95% energi dibanding membuat kaleng baru."},
+ {i:"📄",t:"Mendaur ulang 1 ton kertas diperkirakan menyelamatkan sekitar 17 pohon."},
+ {i:"♻️",t:"Memilah sampah sejak dari tongnya membuat proses daur ulang jauh lebih mudah dan bersih."}
+];
+let fi=-1,ft;
+function nextFact(){
+  const p=$("ft");p.classList.add("out");
+  setTimeout(()=>{fi=(fi+1)%facts.length;p.textContent=facts[fi].t;$("fe").textContent=facts[fi].i;p.classList.remove("out");
+    const b=$("fbar");b.classList.remove("run");void b.offsetWidth;b.classList.add("run")},fi<0?0:350);
+  clearTimeout(ft);ft=setTimeout(nextFact,9000);
+}
+function tick(){
+  const d=new Date(),h=d.getHours();
+  const g=h<11?"Selamat pagi":h<15?"Selamat siang":h<18?"Selamat sore":"Selamat malam";
+  $("clock").textContent=g+" - "+d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"})+" - "+d.toLocaleTimeString("id-ID");
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({bins:bins.map(b=>({id:b.id,full:b.full,t:b.t})),events:events.slice(0,300)}))}catch(e){}}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY)||"null");if(!d)return;
+    d.bins.forEach(o=>{const b=bins.find(x=>x.id===o.id);if(b){b.full=!!o.full;b.t=o.t?new Date(o.t):null}});
+    d.events.forEach(e=>events.push({id:e.id,full:e.full,t:new Date(e.t)}));
+  }catch(e){}
+}
+function renderChart(){
+  const c=$("chart"),today=new Date().toDateString(),n=new Array(24).fill(0),h0=new Date().getHours();
+  events.forEach(e=>{if(e.full&&e.t.toDateString()===today)n[e.t.getHours()]++});
+  const mx=Math.max(1,...n),tot=n.reduce((a,b)=>a+b,0);
+  c.innerHTML=n.map((v,h)=>`<div class="cc" title="${String(h).padStart(2,"0")}.00 - ${v} kejadian penuh"><i class="${v?"":"z"} ${h===h0?"now":""}" style="--k:${h};height:${v?Math.max(12,v/mx*100):4}%"></i><small>${h%3===0?String(h).padStart(2,"0"):""}</small></div>`).join("")+(tot?"":'<div class="cn">Belum ada tong penuh hari ini</div>');
+}
+function wa(fl){
+  const w=$("wa");if(!fl.length){w.hidden=true;return}
+  w.hidden=false;
+  w.href="https://wa.me/?text="+encodeURIComponent("EcoBin: "+fl.length+" tong penuh ("+fl.map(b=>b.name).join(", ")+"). Mohon segera dikosongkan.");
+}
+function csv(){
+  if(!events.length){toast("Belum ada riwayat untuk diekspor.");return}
+  const rows=["waktu,tong,status"].concat(events.map(e=>{const b=bins.find(x=>x.id===e.id);return e.t.toISOString()+","+(b?b.name:e.id)+","+(e.full?"penuh":"dikosongkan")}));
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([rows.join("\n")],{type:"text/csv"}));a.download="riwayat-ecobin.csv";a.click();
+  toast("Riwayat diekspor ke riwayat-ecobin.csv");
+}
+function boot(){
+  tick();setInterval(()=>{tick();bins.forEach(b=>{if(b.full)durPaint(b)})},1000);nextFact();$("fn").onclick=nextFact;$("btnCsv").onclick=csv;
+  const bg=document.querySelector(".bg"),E=["♻","🍃","✨","🌱"];
+  for(let i=0;i<14;i++){const p=document.createElement("span");p.className="pt";p.textContent=E[i%4];
+    p.style.cssText="left:"+Math.round(Math.random()*96)+"%;font-size:"+(12+Math.round(Math.random()*12))+"px;animation-duration:"+(16+Math.round(Math.random()*16))+"s;animation-delay:-"+Math.round(Math.random()*30)+"s";bg.appendChild(p)}
+  events.slice().reverse().forEach(e=>{const b=bins.find(x=>x.id===e.id);if(b)feedRow(b,e.full,e.t)});
+}
+load();build();summary();boot();
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(moveThumb);moveThumb();addEventListener("resize",moveThumb);
+
+// Membaca status dari Firebase tiap 3 detik
+async function poll(){
+  try{
+    const r=await fetch(DB_URL+"/bins.json",{cache:"no-store"});
+    if(!r.ok)throw new Error(r.status);
+    const data=await r.json()||{};
+    Object.entries(data).forEach(([k,v])=>{if(v!==null)updateBin(Number(k),v===true)});
+    $("tMode").textContent="Live";$("dot").className="dot live";$("conn").textContent="Terhubung "+hm(new Date());
+  }catch(e){$("dot").className="dot err";$("conn").textContent="Terputus"}
+}
+if(!DB_URL.includes("NAMA-PROJECT")){poll();setInterval(poll,3000)}
+</script>
+</body>
+</html>
