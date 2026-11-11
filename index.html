@@ -197,7 +197,7 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40
   </div>
 </div>
 <div id="toasts" aria-live="polite"></div>
-
+ 
 <main>
   <section class="hero">
     <div class="clock" id="clock"></div>
@@ -211,27 +211,27 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40
       <div class="tile"><span>Update terakhir</span><b id="tLast">-</b></div>
     </div>
   </section>
-
+ 
   <div class="tools">
     <div class="seg" id="seg"><i class="thumb" id="thumb"></i>
       <button data-f="all" class="on">Semua</button><button data-f="full">Penuh</button><button data-f="ok">Belum penuh</button>
     </div>
     <button class="tbtn" id="btnTest">🧪 Tes peringatan</button>
   </div>
-
+ 
   <div id="grid" class="grid"></div>
   <div id="empty" class="empty" hidden>Tidak ada tempat sampah di kategori ini.</div>
-
+ 
   <div class="duo">
     <div class="fact" id="fact"><div class="fe" id="fe">♻️</div><div><small>Tahukah kamu?</small><p id="ft"></p><button class="tbtn" id="fn">Fakta lain →</button></div><i class="fbar" id="fbar"></i></div>
   </div>
-
+ 
   <h2>Tong penuh per jam (hari ini)</h2>
   <div class="chart" id="chart"></div>
-
+ 
   <div class="h2r"><h2>Aktivitas terbaru</h2><button class="tbtn" id="btnCsv">⬇ Ekspor CSV</button></div>
   <div id="feed" class="feed"><div class="none">Belum ada aktivitas. Peringatan akan muncul di sini.</div></div>
-
+ 
   <details>
     <summary>Menghubungkan ke sensor ESP32</summary>
     <p>Isi <code>DB_URL</code> di kode dengan URL Firebase Realtime Database. ESP32 mengirim <code>true</code> saat sensor mendeteksi sampah dan <code>false</code> saat tidak. Halaman ini membaca data itu tiap 3 detik.</p>
@@ -240,9 +240,9 @@ updateBin(2, false);  // sudah dikosongkan</pre>
   </details>
 </main>
 <footer>EcoBin - dibangun dengan ESP32 dan sensor ultrasonik. Pilah sampah, jaga bumi 🌍</footer>
-
+ 
 <dialog id="dlg"><div class="dwrap"><button class="x" id="dx" aria-label="Tutup">✕</button><div id="dbody"></div></div></dialog>
-
+ 
 <script>
 // ====== ISI URL FIREBASE ANDA DI SINI ======
 const DB_URL="https://NAMA-PROJECT-default-rtdb.firebaseio.com";
@@ -257,11 +257,11 @@ const hm=d=>d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
 let sound=true,filter="all",cur=null,lastN=0,net=null;
 const events=[];
 const URGENT_MIN=10,KEY="binsense:v1";
-
+ 
 function art(u){return `<svg viewBox="0 0 80 96" class="bn" aria-hidden="true"><defs><clipPath id="c${u}"><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z"/></clipPath></defs><g clip-path="url(#c${u})"><g class="lvl"><g class="wave"><path d="M0 0q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0V90H0z" fill="currentColor" opacity=".85"/></g></g><circle class="bub" cx="30" cy="88" r="2.4" style="animation-delay:0s"/><circle class="bub" cx="42" cy="88" r="1.8" style="animation-delay:.9s"/><circle class="bub" cx="52" cy="88" r="2.1" style="animation-delay:1.7s"/></g><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><g class="lid"><rect x="8" y="22" width="64" height="8" rx="4" fill="currentColor"/><rect x="30" y="14" width="20" height="8" rx="4" fill="currentColor" opacity=".7"/></g></svg>`}
 const pill=f=>`<span class="pill ${f?"f":"o"}"><i></i>${f?"Penuh":"Belum penuh"}</span>`;
 const fmtM=m=>m<60?m+" mnt":Math.floor(m/60)+" j "+(m%60)+" mnt";
-
+ 
 function build(){
   $("grid").innerHTML=bins.map((b,i)=>`<article class="card" style="--i:${i}" data-id="${b.id}" tabindex="0" role="button" aria-label="Lihat detail ${b.name}">
     <div class="ct"><div><div class="nm"><span class="ico">${b.icon}</span>${b.name}</div><p class="lc">${b.loc}</p></div><span class="pillbox"></span></div>
@@ -321,7 +321,7 @@ function burst(el,emo){
     el.appendChild(s);setTimeout(()=>s.remove(),1000);
   }
 }
-
+ 
 // Titik masuk data dari sensor: detected = true jika sensor mendeteksi sampah
 function updateBin(id,detected){
   const b=bins.find(x=>x.id===id);if(!b)return;
@@ -334,7 +334,7 @@ function updateBin(id,detected){
   paint(b);summary();$("tLast").textContent=hm(new Date());save();
   if(cur===b.id&&$("dlg").open)fillDlg();
 }
-
+ 
 function openDlg(id){cur=id;fillDlg();$("dlg").showModal()}
 function fillDlg(){
   const b=bins.find(x=>x.id===cur),d=$("dbody");
@@ -348,7 +348,7 @@ $("dx").onclick=()=>$("dlg").close();
 $("dlg").addEventListener("click",e=>{if(e.target===$("dlg"))$("dlg").close()});
 document.addEventListener("click",e=>{const t=e.target.closest(".card,.sg");if(t)openDlg(Number(t.dataset.id))});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("card"))openDlg(Number(e.target.dataset.id))});
-
+ 
 // Efek miring dan sorotan mengikuti kursor (hanya perangkat dengan mouse)
 let last=null;
 if(matchMedia("(hover:hover)").matches){
@@ -360,7 +360,7 @@ if(matchMedia("(hover:hover)").matches){
   });
   $("grid").addEventListener("pointerleave",()=>{if(last){last.style.removeProperty("--rx");last.style.removeProperty("--ry")}});
 }
-
+ 
 function moveThumb(){const on=$("seg").querySelector("button.on"),t=$("thumb");t.style.left=on.offsetLeft+"px";t.style.width=on.offsetWidth+"px"}
 $("seg").onclick=e=>{const f=e.target.dataset&&e.target.dataset.f;if(!f)return;filter=f;[...$("seg").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.f===f));moveThumb();summary()};
 $("btnTest").onclick=()=>{
@@ -377,7 +377,7 @@ $("btnTheme").onclick=()=>{
   const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
   r.dataset.theme=dark?"light":"dark";
 };
-
+ 
 // ===== Suara ambience (dibuat langsung di browser dengan Web Audio, tanpa file audio) =====
 const amb={ctx:null,master:null,on:false,timer:null,vol:.4};
 try{const v=localStorage.getItem("ecobin:amb");if(v!==null)amb.vol=Math.min(1,Math.max(0,Number(v)||0))}catch(e){}
@@ -460,7 +460,7 @@ $("ambT").onclick=()=>ambSet(!amb.on);
 $("btnAmb").onclick=()=>{const a=$("amb");a.hidden=!a.hidden;if(!a.hidden&&curTab==="yt"&&!ytOn)ambTab("yt");$("btnAmb").setAttribute("aria-expanded",String(!a.hidden))};
 document.addEventListener("click",e=>{const a=$("amb");if(!a.hidden&&!e.target.closest("#amb,#btnAmb")){a.hidden=true;$("btnAmb").setAttribute("aria-expanded","false")}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("amb").hidden){$("amb").hidden=true;$("btnAmb").setAttribute("aria-expanded","false")}});
-
+ 
 // ===== Fakta, jam, riwayat tersimpan, grafik, WhatsApp, CSV =====
 const facts=[
  {i:"🧴",t:"Sebuah botol plastik diperkirakan butuh sekitar 450 tahun untuk terurai di alam."},
@@ -517,7 +517,7 @@ function boot(){
 }
 load();build();summary();boot();
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(moveThumb);moveThumb();addEventListener("resize",moveThumb);
-
+ 
 // Membaca status dari Firebase tiap 3 detik
 async function poll(){
   try{
