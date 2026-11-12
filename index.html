@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>EcoBin - Smart Waste Monitoring</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14b8a0">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-title" content="EcoBin">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -161,12 +165,8 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40
 .amr{display:flex;align-items:center;gap:12px;font-size:.84rem;color:var(--mute)}
 .amr input{flex:1;accent-color:var(--ok)}
 .amb small{display:block;margin-top:10px;color:var(--mute);font-size:.74rem;line-height:1.4}
-.tabs{display:flex;gap:6px;margin-bottom:12px}
-.tabs button{flex:1;min-height:40px;border-radius:12px;border:1px solid var(--line);background:var(--glass);color:var(--text);font:inherit;font-weight:600;font-size:.84rem;cursor:pointer;transition:background .25s,color .25s}
-.tabs button.on{background:var(--ink);color:var(--ink-t);border-color:transparent}
-.vid{aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#000}
-.vid iframe{width:100%;height:100%;border:0;display:block}
-.amb a{color:var(--ok-ink);font-weight:600}
+.steps{color:var(--mute);font-size:.88rem;padding-left:20px;line-height:1.6}
+.prow{display:flex;gap:10px;flex-wrap:wrap}.prow .tbtn{text-decoration:none;display:inline-flex;align-items:center}
 @media(max-width:760px){.tiles{grid-template-columns:repeat(3,1fr)}.tile{padding:10px 12px}.tile b{font-size:1.15rem}}
 @media(max-width:600px){.conn span{display:none}.conn{flex:none}.ib{flex:none;width:36px}.hin{padding:10px 12px;gap:6px}main{padding-top:30px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
@@ -185,19 +185,13 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40
   <button class="ib" id="btnNotif" title="Aktifkan notifikasi browser" aria-label="Aktifkan notifikasi">📲</button>
 </div></header>
 <div class="amb" id="amb" hidden>
-  <div class="tabs" id="ambTabs"><button data-s="yt" class="on">YouTube</button><button data-s="own">Bawaan</button></div>
-  <div id="paneYt">
-    <div class="vid"><iframe id="ytf" title="Minecraft music dan ambience oleh CozyCraft" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>
-    <small>Minecraft music dan ambience oleh CozyCraft. Musik oleh C418, Lena Raine, Kumi Tanioka, dan Aaron Cherof, diputar lewat pemutar resmi YouTube. Tekan putar, lalu tutup panel; suara tetap berjalan. <a href="https://www.youtube.com/watch?v=CijACOd7jQk" target="_blank" rel="noopener">Buka di YouTube</a></small>
-  </div>
-  <div id="paneOwn" hidden>
-    <div class="ambh"><b>Suara alam bawaan</b><button class="tbtn" id="ambT">Nyalakan</button></div>
-    <label class="amr"><span>Volume</span><input type="range" id="ambV" min="0" max="100" value="40" aria-label="Volume ambience"></label>
-    <small>Dibuat langsung di browser. Siang hari kicau burung, malam hari jangkrik.</small>
-  </div>
+  <div class="ambh"><b>Musik ambience</b><button class="tbtn" id="ambT">Nyalakan</button></div>
+  <label class="amr"><span>Volume</span><input type="range" id="ambV" min="0" max="100" value="40" aria-label="Volume ambience"></label>
+  <small>Short Meditation Music, 3 Minute Relaxation (Calming). Diputar berulang sejak halaman dibuka.</small>
 </div>
+<audio id="ambA" src="ambience.mp3" loop preload="auto"></audio>
 <div id="toasts" aria-live="polite"></div>
- 
+
 <main>
   <section class="hero">
     <div class="clock" id="clock"></div>
@@ -211,41 +205,70 @@ footer{text-align:center;color:var(--mute);font-size:.82rem;padding:10px 20px 40
       <div class="tile"><span>Update terakhir</span><b id="tLast">-</b></div>
     </div>
   </section>
- 
+
   <div class="tools">
     <div class="seg" id="seg"><i class="thumb" id="thumb"></i>
       <button data-f="all" class="on">Semua</button><button data-f="full">Penuh</button><button data-f="ok">Belum penuh</button>
     </div>
     <button class="tbtn" id="btnTest">🧪 Tes peringatan</button>
   </div>
- 
+
   <div id="grid" class="grid"></div>
   <div id="empty" class="empty" hidden>Tidak ada tempat sampah di kategori ini.</div>
- 
+
   <div class="duo">
     <div class="fact" id="fact"><div class="fe" id="fe">♻️</div><div><small>Tahukah kamu?</small><p id="ft"></p><button class="tbtn" id="fn">Fakta lain →</button></div><i class="fbar" id="fbar"></i></div>
   </div>
- 
+
   <h2>Tong penuh per jam (hari ini)</h2>
   <div class="chart" id="chart"></div>
- 
+
   <div class="h2r"><h2>Aktivitas terbaru</h2><button class="tbtn" id="btnCsv">⬇ Ekspor CSV</button></div>
   <div id="feed" class="feed"><div class="none">Belum ada aktivitas. Peringatan akan muncul di sini.</div></div>
- 
+
   <details>
     <summary>Menghubungkan ke sensor ESP32</summary>
     <p>Isi <code>DB_URL</code> di kode dengan URL Firebase Realtime Database. ESP32 mengirim <code>true</code> saat sensor mendeteksi sampah dan <code>false</code> saat tidak. Halaman ini membaca data itu tiap 3 detik.</p>
 <pre>updateBin(2, true);   // penuh
 updateBin(2, false);  // sudah dikosongkan</pre>
   </details>
+
+  <details id="pushMain" open>
+    <summary>Notifikasi push seperti aplikasi (tetap masuk saat website ditutup)</summary>
+    <p>Seperti notifikasi Shopee: muncul di layar HP atau komputer walau halaman ini sudah ditutup. Cukup diaktifkan sekali di tiap perangkat.</p>
+    <p><b>Status:</b> <span id="pushState">Memeriksa...</span></p>
+    <div class="prow"><button class="tbtn" id="pushBtn" disabled>Aktifkan notifikasi</button></div>
+    <ol class="steps">
+      <li>Android dan komputer: buka halaman ini di Chrome atau Edge, tekan Aktifkan notifikasi, lalu pilih Izinkan.</li>
+      <li>iPhone: buka lewat Safari, ketuk Bagikan lalu Tambahkan ke Layar Utama, buka EcoBin dari ikon itu, kemudian tekan Aktifkan notifikasi. Ini syarat dari Apple (iOS 16.4 ke atas).</li>
+    </ol>
+  </details>
+
+  <details id="pushInfo">
+    <summary>Cadangan: notifikasi lewat ntfy atau Telegram</summary>
+    <p>Notifikasi dikirim langsung oleh ESP32 lewat ntfy dan Telegram, jadi tidak bergantung pada halaman ini. Cukup pasang aplikasinya sekali di tiap perangkat.</p>
+    <ol class="steps">
+      <li>Pasang aplikasi <b>ntfy</b> (Android, iPhone) lalu pilih tambah langganan dan masukkan topik di bawah. Di komputer, buka tautan topik di browser lalu izinkan notifikasi.</li>
+      <li>Atau pakai <b>Telegram</b>: buat bot lewat @BotFather, isi <code>TG_TOKEN</code> dan <code>TG_CHAT_ID</code> di kode ESP32.</li>
+      <li>Isi <code>NTFY_TOPIC</code> di kode ESP32 dengan kode topik yang sama.</li>
+    </ol>
+    <p>Topik ntfy: <code id="ntfyCode"></code></p>
+    <div class="prow"><a class="tbtn" id="ntfyOpen" target="_blank" rel="noopener">Buka topik di ntfy</a><button class="tbtn" id="ntfyTest">Kirim notifikasi tes</button></div>
+    <p><small>Topik ntfy.sh bersifat publik: siapa pun yang tahu kodenya bisa membaca dan mengirim ke topik itu. Pakai kode acak yang panjang dan jangan dibagikan sembarangan.</small></p>
+  </details>
 </main>
 <footer>EcoBin - dibangun dengan ESP32 dan sensor ultrasonik. Pilah sampah, jaga bumi 🌍</footer>
- 
+
 <dialog id="dlg"><div class="dwrap"><button class="x" id="dx" aria-label="Tutup">✕</button><div id="dbody"></div></div></dialog>
- 
+
 <script>
 // ====== ISI URL FIREBASE ANDA DI SINI ======
 const DB_URL="https://NAMA-PROJECT-default-rtdb.firebaseio.com";
+// Kode topik ntfy untuk notifikasi HP (sama persis dengan NTFY_TOPIC di kode ESP32)
+const NTFY_TOPIC="ecobin-GANTI-DENGAN-KODE-ACAK";
+// App ID dari OneSignal untuk notifikasi push seperti aplikasi (Settings > Keys & IDs)
+const ONESIGNAL_APP_ID="GANTI-DENGAN-APP-ID-ONESIGNAL";
+const PUSH_ON=!ONESIGNAL_APP_ID.includes("GANTI");
 // ============================================
 const bins=[
  {id:1,icon:"🧴",name:"Tong Plastik",loc:"Botol dan kemasan plastik",full:false,t:null},
@@ -257,11 +280,11 @@ const hm=d=>d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
 let sound=true,filter="all",cur=null,lastN=0,net=null;
 const events=[];
 const URGENT_MIN=10,KEY="binsense:v1";
- 
+
 function art(u){return `<svg viewBox="0 0 80 96" class="bn" aria-hidden="true"><defs><clipPath id="c${u}"><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z"/></clipPath></defs><g clip-path="url(#c${u})"><g class="lvl"><g class="wave"><path d="M0 0q10-6 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0V90H0z" fill="currentColor" opacity=".85"/></g></g><circle class="bub" cx="30" cy="88" r="2.4" style="animation-delay:0s"/><circle class="bub" cx="42" cy="88" r="1.8" style="animation-delay:.9s"/><circle class="bub" cx="52" cy="88" r="2.1" style="animation-delay:1.7s"/></g><path d="M14 32h52l-4 54a6 6 0 0 1-6 5.5H24a6 6 0 0 1-6-5.5z" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><g class="lid"><rect x="8" y="22" width="64" height="8" rx="4" fill="currentColor"/><rect x="30" y="14" width="20" height="8" rx="4" fill="currentColor" opacity=".7"/></g></svg>`}
 const pill=f=>`<span class="pill ${f?"f":"o"}"><i></i>${f?"Penuh":"Belum penuh"}</span>`;
 const fmtM=m=>m<60?m+" mnt":Math.floor(m/60)+" j "+(m%60)+" mnt";
- 
+
 function build(){
   $("grid").innerHTML=bins.map((b,i)=>`<article class="card" style="--i:${i}" data-id="${b.id}" tabindex="0" role="button" aria-label="Lihat detail ${b.name}">
     <div class="ct"><div><div class="nm"><span class="ico">${b.icon}</span>${b.name}</div><p class="lc">${b.loc}</p></div><span class="pillbox"></span></div>
@@ -321,7 +344,7 @@ function burst(el,emo){
     el.appendChild(s);setTimeout(()=>s.remove(),1000);
   }
 }
- 
+
 // Titik masuk data dari sensor: detected = true jika sensor mendeteksi sampah
 function updateBin(id,detected){
   const b=bins.find(x=>x.id===id);if(!b)return;
@@ -329,12 +352,12 @@ function updateBin(id,detected){
   if(was!==b.full||!b.t)b.t=new Date();
   if(!was&&b.full){
     addLog(b,true);burst(b.el,"⚠️");toast("🚨 "+b.name+" ("+b.loc+") penuh");beep();
-    try{if("Notification" in window&&Notification.permission==="granted")new Notification("Tempat sampah penuh",{body:b.name+" - "+b.loc})}catch(e){}
+    try{if(!PUSH_ON&&"Notification" in window&&Notification.permission==="granted")new Notification("Tempat sampah penuh",{body:b.name+" - "+b.loc})}catch(e){}
   }else if(was&&!b.full){addLog(b,false);burst(b.el,"🌿");toast("✅ "+b.name+" sudah dikosongkan")}
   paint(b);summary();$("tLast").textContent=hm(new Date());save();
   if(cur===b.id&&$("dlg").open)fillDlg();
 }
- 
+
 function openDlg(id){cur=id;fillDlg();$("dlg").showModal()}
 function fillDlg(){
   const b=bins.find(x=>x.id===cur),d=$("dbody");
@@ -348,7 +371,7 @@ $("dx").onclick=()=>$("dlg").close();
 $("dlg").addEventListener("click",e=>{if(e.target===$("dlg"))$("dlg").close()});
 document.addEventListener("click",e=>{const t=e.target.closest(".card,.sg");if(t)openDlg(Number(t.dataset.id))});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.classList&&e.target.classList.contains("card"))openDlg(Number(e.target.dataset.id))});
- 
+
 // Efek miring dan sorotan mengikuti kursor (hanya perangkat dengan mouse)
 let last=null;
 if(matchMedia("(hover:hover)").matches){
@@ -360,7 +383,7 @@ if(matchMedia("(hover:hover)").matches){
   });
   $("grid").addEventListener("pointerleave",()=>{if(last){last.style.removeProperty("--rx");last.style.removeProperty("--ry")}});
 }
- 
+
 function moveThumb(){const on=$("seg").querySelector("button.on"),t=$("thumb");t.style.left=on.offsetLeft+"px";t.style.width=on.offsetWidth+"px"}
 $("seg").onclick=e=>{const f=e.target.dataset&&e.target.dataset.f;if(!f)return;filter=f;[...$("seg").querySelectorAll("button")].forEach(x=>x.classList.toggle("on",x.dataset.f===f));moveThumb();summary()};
 $("btnTest").onclick=()=>{
@@ -369,98 +392,45 @@ $("btnTest").onclick=()=>{
   updateBin(free[Math.floor(Math.random()*free.length)].id,true);
 };
 $("btnSound").onclick=()=>{sound=!sound;$("btnSound").classList.toggle("off",!sound);$("btnSound").textContent=sound?"🔔":"🔕"};
-$("btnNotif").onclick=()=>{
-  if(!("Notification" in window)){toast("Browser ini tidak mendukung notifikasi.");return}
-  Notification.requestPermission().then(p=>toast(p==="granted"?"Notifikasi browser aktif.":"Notifikasi browser ditolak.")).catch(()=>{})
-};
+$("btnNotif").onclick=()=>{const d=$("pushMain");d.open=true;d.scrollIntoView({behavior:"smooth",block:"center"})};
 $("btnTheme").onclick=()=>{
   const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
   r.dataset.theme=dark?"light":"dark";
 };
- 
-// ===== Suara ambience (dibuat langsung di browser dengan Web Audio, tanpa file audio) =====
-const amb={ctx:null,master:null,on:false,timer:null,vol:.4};
+
+// ===== Musik ambience (file audio yang diunggah, diputar otomatis dan berulang) =====
+const amb={a:$("ambA"),on:false,vol:.4,fade:null,userOff:false};
 try{const v=localStorage.getItem("ecobin:amb");if(v!==null)amb.vol=Math.min(1,Math.max(0,Number(v)||0))}catch(e){}
-const ambGain=()=>amb.vol*.7;
-function noiseSrc(ctx,white){
-  const n=ctx.sampleRate*4,buf=ctx.createBuffer(1,n,ctx.sampleRate),d=buf.getChannelData(0);let l=0;
-  for(let i=0;i<n;i++){if(white)d[i]=(Math.random()*2-1)*.5;else{l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5}}
-  const f=Math.floor(ctx.sampleRate*.05);for(let i=0;i<f;i++){const g=i/f;d[i]*=g;d[n-1-i]*=g}
-  const s=ctx.createBufferSource();s.buffer=buf;s.loop=true;s.start();return s;
+function ambFade(to,ms,done){
+  clearInterval(amb.fade);const a=amb.a,from=a.volume,t0=performance.now();
+  amb.fade=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/ms);a.volume=Math.max(0,Math.min(1,from+(to-from)*p));if(p>=1){clearInterval(amb.fade);if(done)done()}},50);
 }
-function ambInit(){
-  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
-  const ctx=amb.ctx=new C();
-  amb.master=ctx.createGain();amb.master.gain.value=0;amb.master.connect(ctx.destination);
-  // angin dan dedaunan: derau rendah dengan gelombang naik turun yang lambat
-  const w=noiseSrc(ctx),wf=ctx.createBiquadFilter();wf.type="lowpass";wf.frequency.value=700;
-  const wg=ctx.createGain();wg.gain.value=.5;
-  const l1=ctx.createOscillator(),l1g=ctx.createGain();l1.frequency.value=.07;l1g.gain.value=.3;l1.connect(l1g);l1g.connect(wg.gain);l1.start();
-  w.connect(wf);wf.connect(wg);wg.connect(amb.master);
-  // gemericik air: derau tinggi yang disaring
-  const b=noiseSrc(ctx,true),bf=ctx.createBiquadFilter();bf.type="bandpass";bf.frequency.value=2200;bf.Q.value=.7;
-  const bg=ctx.createGain();bg.gain.value=.05;
-  const l2=ctx.createOscillator(),l2g=ctx.createGain();l2.frequency.value=.23;l2g.gain.value=.02;l2.connect(l2g);l2g.connect(bg.gain);l2.start();
-  b.connect(bf);bf.connect(bg);bg.connect(amb.master);
+function ambUI(){$("ambT").textContent=amb.on?"Matikan":"Nyalakan";$("btnAmb").classList.toggle("on",amb.on)}
+function ambOn(){
+  const a=amb.a;a.volume=0;
+  return a.play().then(()=>{amb.on=true;ambFade(amb.vol,2500);ambUI();return true}).catch(()=>{amb.on=false;ambUI();return false});
 }
-function chirp(){
-  const c=amb.ctx;if(!c||!amb.on)return;
-  const t0=c.currentTime+.05,n=2+Math.floor(Math.random()*4),base=2400+Math.random()*1800;
-  const pan=c.createStereoPanner?c.createStereoPanner():null;if(pan){pan.pan.value=Math.random()*1.6-.8;pan.connect(amb.master)}
-  for(let i=0;i<n;i++){
-    const o=c.createOscillator(),g=c.createGain(),t=t0+i*.13;
-    o.frequency.setValueAtTime(base,t);o.frequency.exponentialRampToValueAtTime(base*(1.25+Math.random()*.3),t+.07);
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.015);g.gain.exponentialRampToValueAtTime(.0008,t+.1);
-    o.connect(g);g.connect(pan||amb.master);o.start(t);o.stop(t+.12);
-  }
+function ambOff(){amb.on=false;ambUI();ambFade(0,800,()=>{if(!amb.on)amb.a.pause()})}
+function ambDuck(){   // musik mengecil sebentar saat alarm berbunyi
+  if(!amb.on)return;ambFade(amb.vol*.25,150,()=>setTimeout(()=>{if(amb.on)ambFade(amb.vol,900)},1100));
 }
-function cricket(){
-  const c=amb.ctx;if(!c||!amb.on)return;const t0=c.currentTime+.05;
-  for(let i=0;i<6;i++){const o=c.createOscillator(),g=c.createGain(),t=t0+i*.06;o.frequency.value=4300;
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.018,t+.01);g.gain.linearRampToValueAtTime(0,t+.045);
-    o.connect(g);g.connect(amb.master);o.start(t);o.stop(t+.05)}
+function ambAuto(){   // nyalakan sejak awal; jika diblokir browser, mulai pada sentuhan pertama
+  ambOn().then(ok=>{
+    if(ok)return;
+    toast("Ketuk di mana saja untuk menyalakan musik ambience");
+    const ev=["pointerdown","keydown","touchstart"];
+    const go=()=>{ev.forEach(t=>removeEventListener(t,go,true));if(!amb.on&&!amb.userOff)ambOn()};
+    ev.forEach(t=>addEventListener(t,go,true));
+  });
 }
-function ambLoop(){
-  if(!amb.on)return;
-  const h=new Date().getHours(),night=h>=18||h<5;
-  (night?cricket:chirp)();
-  amb.timer=setTimeout(ambLoop,(night?1800:3500)+Math.random()*(night?3500:7000));
-}
-function ambSet(on){
-  if(on){
-    if(!amb.ctx)ambInit();
-    if(!amb.ctx){toast("Browser ini tidak mendukung suara ambience.");return}
-    amb.ctx.resume();amb.on=true;
-    amb.master.gain.cancelScheduledValues(amb.ctx.currentTime);amb.master.gain.setTargetAtTime(ambGain(),amb.ctx.currentTime,.8);
-    clearTimeout(amb.timer);amb.timer=setTimeout(ambLoop,1200);
-  }else if(amb.ctx){
-    amb.on=false;clearTimeout(amb.timer);amb.master.gain.setTargetAtTime(0,amb.ctx.currentTime,.3);
-    setTimeout(()=>{if(!amb.on)amb.ctx.suspend()},1500);
-  }
-  $("ambT").textContent=amb.on?"Matikan":"Nyalakan";$("btnAmb").classList.toggle("on",amb.on);
-}
-function ambDuck(){   // ambience mengecil sebentar saat alarm berbunyi
-  if(!amb.on||!amb.ctx)return;const g=amb.master.gain,t=amb.ctx.currentTime;
-  g.setTargetAtTime(ambGain()*.25,t,.05);g.setTargetAtTime(ambGain(),t+1.2,.5);
-}
-const YT_ID="CijACOd7jQk";
-let curTab="yt",ytOn=false;
-function ambTab(t){
-  curTab=t;
-  document.querySelectorAll("#ambTabs button").forEach(b=>b.classList.toggle("on",b.dataset.s===t));
-  $("paneYt").hidden=t!=="yt";$("paneOwn").hidden=t!=="own";
-  const f=$("ytf");
-  if(t==="yt"){ambSet(false);if(!ytOn){f.src="https://www.youtube-nocookie.com/embed/"+YT_ID+"?rel=0&playsinline=1";ytOn=true}}
-  else if(ytOn){f.src="about:blank";ytOn=false}
-}
-$("ambTabs").onclick=e=>{const t=e.target.dataset&&e.target.dataset.s;if(t)ambTab(t)};
 $("ambV").value=Math.round(amb.vol*100);
-$("ambV").oninput=e=>{amb.vol=e.target.value/100;try{localStorage.setItem("ecobin:amb",String(amb.vol))}catch(x){}if(amb.on)amb.master.gain.setTargetAtTime(ambGain(),amb.ctx.currentTime,.1)};
-$("ambT").onclick=()=>ambSet(!amb.on);
-$("btnAmb").onclick=()=>{const a=$("amb");a.hidden=!a.hidden;if(!a.hidden&&curTab==="yt"&&!ytOn)ambTab("yt");$("btnAmb").setAttribute("aria-expanded",String(!a.hidden))};
+$("ambV").oninput=e=>{amb.vol=e.target.value/100;try{localStorage.setItem("ecobin:amb",String(amb.vol))}catch(x){}if(amb.on){clearInterval(amb.fade);amb.a.volume=amb.vol}};
+$("ambT").onclick=()=>{if(amb.on){amb.userOff=true;ambOff()}else{amb.userOff=false;ambOn()}};
+$("btnAmb").onclick=()=>{const a=$("amb");a.hidden=!a.hidden;$("btnAmb").setAttribute("aria-expanded",String(!a.hidden))};
 document.addEventListener("click",e=>{const a=$("amb");if(!a.hidden&&!e.target.closest("#amb,#btnAmb")){a.hidden=true;$("btnAmb").setAttribute("aria-expanded","false")}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("amb").hidden){$("amb").hidden=true;$("btnAmb").setAttribute("aria-expanded","false")}});
- 
+ambAuto();
+
 // ===== Fakta, jam, riwayat tersimpan, grafik, WhatsApp, CSV =====
 const facts=[
  {i:"🧴",t:"Sebuah botol plastik diperkirakan butuh sekitar 450 tahun untuk terurai di alam."},
@@ -517,7 +487,46 @@ function boot(){
 }
 load();build();summary();boot();
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(moveThumb);moveThumb();addEventListener("resize",moveThumb);
- 
+
+// ===== Notifikasi HP lewat ntfy: pengaturan dan tombol tes =====
+(function(){
+  const set=!NTFY_TOPIC.includes("GANTI");
+  $("ntfyCode").textContent=set?NTFY_TOPIC:"(belum diisi, ganti NTFY_TOPIC di kode)";
+  $("ntfyOpen").href=set?"https://ntfy.sh/"+encodeURIComponent(NTFY_TOPIC):"https://ntfy.sh/app";
+  $("ntfyTest").onclick=async()=>{
+    if(!set){toast("Isi NTFY_TOPIC di kode lebih dulu.");return}
+    try{
+      const r=await fetch("https://ntfy.sh/"+encodeURIComponent(NTFY_TOPIC),{method:"POST",headers:{Title:"EcoBin: notifikasi tes",Tags:"white_check_mark"},body:"Notifikasi berhasil. Kabar akan masuk ke sini saat ada tong yang penuh."});
+      toast(r.ok?"Notifikasi tes terkirim. Cek HP Anda.":"Gagal mengirim (kode "+r.status+").");
+    }catch(e){toast("Tidak bisa menghubungi ntfy.sh dari halaman ini.")}
+  };
+})();
+
+// ===== Notifikasi push seperti aplikasi (OneSignal): berlangganan per perangkat =====
+(function(){
+  const st=$("pushState"),btn=$("pushBtn");
+  const label=on=>{st.textContent=on?"Aktif di perangkat ini":"Belum aktif di perangkat ini";btn.textContent=on?"Matikan notifikasi":"Aktifkan notifikasi";btn.dataset.on=on?"1":"0"};
+  if(!PUSH_ON){st.textContent="Belum dikonfigurasi. Isi ONESIGNAL_APP_ID di kode.";return}
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  const sc=document.createElement("script");sc.src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";sc.defer=true;document.head.appendChild(sc);
+  st.textContent="Memuat layanan notifikasi...";
+  const timer=setTimeout(()=>{st.textContent="Layanan notifikasi tidak bisa dimuat. Pastikan halaman dibuka lewat https dan koneksi internet aktif."},8000);
+  OneSignalDeferred.push(async OS=>{
+    try{
+      await OS.init({appId:ONESIGNAL_APP_ID});clearTimeout(timer);
+      if(!OS.Notifications.isPushSupported()){st.textContent="Browser ini belum mendukung notifikasi push. Di iPhone, tambahkan dulu ke Layar Utama.";return}
+      label(OS.User.PushSubscription.optedIn);btn.disabled=false;
+      OS.User.PushSubscription.addEventListener("change",()=>label(OS.User.PushSubscription.optedIn));
+      btn.onclick=async()=>{
+        if(btn.dataset.on==="1"){await OS.User.PushSubscription.optOut();label(false);toast("Notifikasi dimatikan di perangkat ini.");return}
+        await OS.Notifications.requestPermission();await OS.User.PushSubscription.optIn();
+        label(OS.User.PushSubscription.optedIn);
+        toast(OS.User.PushSubscription.optedIn?"Notifikasi aktif di perangkat ini.":"Izin notifikasi ditolak. Ubah lewat pengaturan situs di browser.");
+      };
+    }catch(e){clearTimeout(timer);st.textContent="Gagal menyiapkan notifikasi: "+(e&&e.message?e.message:e)}
+  });
+})();
+
 // Membaca status dari Firebase tiap 3 detik
 async function poll(){
   try{
